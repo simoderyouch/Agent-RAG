@@ -27,7 +27,7 @@ model_name = "deepseek-r1-distill-llama-70b"
 groq_api_key = os.getenv("GROQ_API_KEY")
 
 llm = ChatGroq(
-    groq_api_key="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",
+    groq_api_key="",
     model_name='meta-llama/llama-4-scout-17b-16e-instruct',
     temperature=0.6
 )
