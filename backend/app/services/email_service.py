@@ -44,7 +44,7 @@ def send_verification_email(email: EmailStr, verification_token: str):
     """
     # Customize the email content as per your requirements
     subject = "Verify Your Email"
-    verification_link = f"http://127.0.0.1:8080/api/verify-email/{verification_token}"
+    verification_link = f"{os.getenv("BACKEND_URL")}/api/auth/verify-email/{verification_token}"
     message = f"""
     <html>
     <body>

@@ -41,8 +41,8 @@ import numpy as np
 async def get_document(documents):
     text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
         tokenizer=tokenizer,
-        chunk_size=32000,
-        chunk_overlap=0,
+        chunk_size=512,
+        chunk_overlap=50,
         strip_whitespace=True,
     )
     docs = text_splitter.split_documents(documents)
@@ -145,7 +145,7 @@ def retrieved_docs(question, embedding_url, similarity_threshold=0.2):
         results = qdrant_client.search(
             collection_name=embedding_url,
             query_vector=question_vector,
-            limit=10,
+            limit=5,
             with_payload=True,
             with_vectors=False,
             score_threshold=None  

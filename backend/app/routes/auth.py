@@ -50,7 +50,7 @@ def register( first_name: str = Body(...),
     
     hashed_password = pwd_context.hash(password)
     verification_token = create_access_token(data={"user": username}, expires_delta=timedelta(minutes=5))
-    new_user = User(first_name=first_name, last_name=last_name, user_name=username, email=email, hashed_password=hashed_password, email_verification_token=verification_token)
+    new_user = User(first_name=first_name, last_name=last_name, user_name=username, email=email, hashed_password=hashed_password, email_verification_token=verification_token , exam_result=None)
     db.add(new_user)
     db.commit()  # Commit the transaction to ensure new_user gets an ID assigned
 
@@ -81,20 +81,23 @@ def verify_email(verification_token: str, db: Session = Depends(get_db)):
     user.refresh_token = refresh_token
     db.commit()
 
-    return  RedirectResponse(url="http://localhost:3000/user/login")
+    return  RedirectResponse(url=os.getenv("FRONTEND_URL"))
 
 
 
 @router.post("/login")
-def login(username_or_email: str = Body(...), password: str = Body(...), db: Session = Depends(get_db)):
+def login(username_or_email: str = Body(...), password: str = Body(...), quizAnswers : list = Body(...) , db: Session = Depends(get_db)):
     auth_result = authenticate_user(db, username_or_email, password)
     
     if not auth_result["bool"]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=auth_result["msg"])
     
     user = auth_result["user"]
-    
-    
+    print(quizAnswers)
+    if quizAnswers:
+        user.exam_result = quizAnswers
+        db.commit()
+
     
     access_token = create_access_token(data={"user": user.user_name , "user_id": user.id}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     
@@ -103,7 +106,9 @@ def login(username_or_email: str = Body(...), password: str = Body(...), db: Ses
         'first_name' : user.first_name , 
         'last_name' : user.last_name ,
         'email' : user.email,
-        'user_name' : user.user_name
+        'user_name' : user.user_name,
+        'id' : user.id,
+        'exam_result' : user.exam_result
     }
     
     content = {'user': public_user_info, "access_token": access_token,  "token_type": "bearer"}
@@ -172,7 +177,7 @@ def refresh_token(request: Request, db: Session = Depends(get_db)):
         except:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token not associated with any user")
     
-    except jwt.PyJWTError:
+    except jwt.JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     
     

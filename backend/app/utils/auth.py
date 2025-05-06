@@ -34,7 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return int(user_id)  # Convert user_id to int
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
-    except jwt.PyJWTError:
+    except jwt.JWTError :
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
 

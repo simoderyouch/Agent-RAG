@@ -1,6 +1,6 @@
 from typing import List
 from io import BytesIO
-import fitz  # PyMuPDF
+import fitz  
 from langchain.document_loaders.base import BaseLoader
 from langchain.schema import Document
 from minio import Minio

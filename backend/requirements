@@ -25,3 +25,9 @@ langchain_groq
 minio
 qdrant-client
 python-dotenv
+sentence_transformers
+openai
+langchain_qdrant
+pymupdf
+pydantic-settings
+python-dotenv

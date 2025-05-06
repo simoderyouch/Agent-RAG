@@ -24,7 +24,10 @@ async def generate_response(
     index: str,
     question : str,
     context: list,
+    memory: list = None,
+    personalInfo : list = None,
     language: str = "Auto-detect",
+    
 ):
     try:
         
@@ -45,7 +48,12 @@ async def generate_response(
 
         # Chain: Input → Prompt → LLM → Output
         rag_chain = (
-            {"context": lambda _: context, "question": RunnablePassthrough()}
+              {
+                "context": lambda _: context,
+                "personalInfo": lambda _: personalInfo or [],
+                "memory": lambda _: memory or [],
+                "question": RunnablePassthrough(),
+            }
             | rag_prompt
             | llm
             | StrOutputParser()
@@ -105,6 +113,7 @@ async def generate_questions(
     index: str,
     context: List[Document],
     language: str = "Auto-detect",
+    
 ):
     try:
         language_names = {"en": "English", "fr": "French", "ar": "Arabic"}

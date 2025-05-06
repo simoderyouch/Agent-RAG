@@ -19,9 +19,14 @@ class User(Base):
     email_verified = Column(Boolean, default=False) 
     email_verification_token = Column(String, nullable=True)
 
+    exam_result = Column(JSONB, nullable=True)
+
     uploaded_files = relationship("UploadedFile", back_populates="owner")
     chats = relationship("Chat", back_populates="user")
+    chats_cour = relationship("Chat_Cour", back_populates="user")
     email_verified 
+
+    
 
     def update_refresh_token(self, refresh_token):
         self.refresh_token = refresh_token
@@ -37,6 +42,7 @@ class UploadedFile(Base):
 
     owner = relationship("User", back_populates="uploaded_files")
     chats = relationship("Chat", back_populates="uploaded_file")
+    
 
 
    
@@ -90,13 +96,40 @@ class Filiere(Base):
     courses = relationship("Cours", back_populates="filiere")
 
 
+
+
+
 class Cours(Base):
     __tablename__ = "cours"
-    
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     url = Column(String, nullable=False)
-    embedding_url = Column(String, nullable=True)
+    embedding_path = Column(String, nullable=True)
     filiere_id = Column(Integer, ForeignKey("filieres.id"))
+    file_type = Column(String, index=True)
 
     filiere = relationship("Filiere", back_populates="courses")
+    chats_cour = relationship("Chat_Cour", back_populates="cours")
+
+
+class Chat_Cour(Base):
+    __tablename__ = "chats_cour"
+
+    id = Column(Integer, primary_key=True, index=True)
+    question = Column(String, nullable=True)
+    response = Column(String, nullable=True)
+    source = Column(JSONB, nullable=True)
+    created_at_question = Column(DateTime, default=func.now(), nullable=True)
+    created_at_response = Column(DateTime, nullable=True)
+
+    user_id = Column(Integer, ForeignKey("users.id"))
+    cours_id = Column(Integer, ForeignKey("cours.id"))  # renamed
+
+    user = relationship("User", back_populates="chats_cour")
+    cours = relationship("Cours", back_populates="chats_cour")
+
+    def set_source(self, source):
+        self.source = json.dumps(source)
+
+    def get_source(self):
+        return json.loads(self.source) if self.source else []
