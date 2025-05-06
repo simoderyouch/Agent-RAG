@@ -33,10 +33,3 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# OS generated
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# MinIO or other storage
-minio_data/
